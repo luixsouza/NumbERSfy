@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NumbERSfy - MP3 Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #2c81cb;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        audio {
+            width: 300px;
+            margin: 20px;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        img {
+            width: 35px;
+            height: auto;
+            cursor: pointer;
+            margin: 0 10px;
+        }
+
+        #volumeControl {
+            margin-top: 20px;
+        }
+
+        #logo {
+            width: 300px;
+            height: auto;
+            margin-top: 20px;
+        }
+
+        #albumCover {
+            width: 200px;
+            height: auto;
+            margin-top: 20px;
+        }
+
+        #songName {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        #artistName {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <img id="logo" th:src="@{/images/NumbERSfy - Logo.png}" alt="NumbERSfy Logo">
+
+        <div id="playlists">
+            <ul>
+                <li th:each="playlist : ${playlists}">
+                    <a th:href="@{/play?playlistName=${playlist.name}}">
+                        <span th:text="${playlist.name}"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+
+        <div id="albumCover"></div>
+
+        <audio id="audioPlayer" controls>
+            <source src="sua-musica.mp3" type="audio/mp3">
+            Seu navegador não suporta a tag de áudio.
+        </audio>
+
+        <div id="controls">
+            <img th:src="@{/images/previous.png}" alt="Anterior" onclick="previousTrack()">
+            <img th:src="@{/images/play.png}" alt="Play/Pause" onclick="playPause()">
+            <img th:src="@{/images/forward.png}" alt="Próxima" onclick="nextTrack()">
+        </div>
+        
+
+        <div id="volumeControl">
+            <label for="volume">Volume:</label>
+            <input type="range" id="volume" name="volume" min="0" max="1" step="0.1" value="1" oninput="setVolume()">
+        </div>
+
+        <div id="songName"></div>
+
+        <div id="artistName"></div>
+    </div>
+
+    <script>
+        var audioPlayer = document.getElementById('audioPlayer');
+        var trackName = document.getElementById('trackName');
+        var volumeControl = document.getElementById('volume');
+        var albumCover = document.getElementById('albumCover');
+        var songName = document.getElementById('songName');
+        var artistName = document.getElementById('artistName');
+
+        function playPause() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+            } else {
+                audioPlayer.pause();
+            }
+        }
+
+        function previousTrack() {
+            
+        }
+
+        function nextTrack() {
+            
+        }
+
+        function setVolume() {
+            audioPlayer.volume = volumeControl.value;
+        }
+    </script>
+</body>
+</html>
