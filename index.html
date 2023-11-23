@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numbersfy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0%;
+            padding: 0%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #0099ff;
+            color: rgba(0, 0, 255, 0.192);
+            height: 100vh;
+        }
+
+        h1 {
+            color: #000;
+        }
+
+        .reprodutor {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .capa-album img {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .descrição {
+            margin: 10px 0;
+        }
+
+        .branco {
+            color: #fff; 
+        }
+
+        .controles {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .controles i {
+            cursor: pointer;
+            font-size: 24px;
+            color: #000;
+            margin: 5px;
+        }
+
+        .barra {
+            width: 300px;
+            height: 6px;
+            border: 1px solid rgb(0, 0, 0);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        progress {
+            height: 6px;
+            width: 20%;
+            background-color: #333;
+        }
+
+        .ponto {
+            width: 20px;
+            height: 20px;
+            background-color: aliceblue;
+            border-radius: 50%;
+            margin-left: -1px; 
+        }
+
+        .duracao {
+            width: 300px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+    <h1> <img src="imagens/logo1.jpg" alt="Logo"></h1>
+    
+    <ul id="playlist">
+      
+    </ul>
+
+    <div class="reprodutor">
+        <div class="capa-album">
+            <img src="imagens/cranberries2.jpg" alt="Capa do Álbum">
+        </div>
+        <div class="descrição">
+            <h2 class="branco">Linger</h2>
+            <i class="branco"> The Cranberries</i>
+        </div>
+        <div class="controles">
+            <i class="fas fa-backward" id="backward"></i>
+            <i class="fas fa-play" id="play"></i>
+            <i class="fas fa-forward" id="forward"></i>
+        </div>
+        <div class= "barra">
+            <progress value="0" max="1"></progress>
+            <div class="ponto"></div>
+        </div>
+        <div class="duracao branco">
+            <p class="inicio">00:00</p>
+            <p class="fim">04:49</p>
+        </div>
+    </div>
+    <div>
+        <audio src="musicas/Linger (Dave Bascombe Mix).mp3"></audio>
+    </div>
+
+    <script>
+      
+    
+    </script>
+</body>
+</html>
