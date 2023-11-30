@@ -1,156 +1,247 @@
 <!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NumbERSfy - MP3 Player</title>
+    <title>Numbersfy Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-            background-color: #2c81cb;
-        }
-
-        #container {
+            margin: 0%;
+            padding: 0%;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        audio {
-            width: 300px;
-            margin: 20px;
-        }
-
-        #controls {
-            display: flex;
             justify-content: center;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #0099ff;
+            color: rgba(0, 0, 255, 0.192);
+            height: 100vh;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+        }
+
+        .capa-album img {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .reprodutor {
+            display: flex;
+            flex-direction: column;
             align-items: center;
             margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
         }
 
-        img.controlIcon {
-            width: 35px;
-            height: auto;
-            cursor: pointer;
-            margin: 0 10px;
+        .descrição {
+            margin: 10px 0;
         }
 
-        #logo {
-            width: 300px;
-            height: auto;
-            margin-top: 20px;
-        }
-
-        #albumCover {
-            width: 200px;
-            height: auto;
-            margin-top: 20px;
-        }
-
-        #songInfo {
-            margin-top: 10px;
-            font-size: 18px;
+        .branco {
             color: #fff;
         }
 
-        /* Adicione estilo para ocultar o botão de reprodução inicialmente */
-        #playButton {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            font-size: 16px;
+        .controles {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .controles i {
             cursor: pointer;
+            font-size: 24px;
+            color: #000;
+            margin: 5px;
+        }
+
+        .barra {
+            width: 300px;
+            height: 6px;
+            border: 1px solid rgb(0, 0, 0);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        progress {
+            height: 6px;
+            width: 0; /* Inicialmente, sem progresso */
+            background-color: #333;
+        }
+
+        .ponto {
+            width: 20px;
+            height: 20px;
+            background-color: aliceblue;
+            border-radius: 50%;
+            margin-left: -10px;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .duracao {
+            width: 300px;
+            display: flex;
+            justify-content: space-between;
         }
     </style>
 </head>
+
 <body>
-    <div id="container">
-        <img id="logo" th:src="@{/images/NumbERSfy - Logo.png}" alt="NumbERSfy Logo">
-
-        <div id="albumCover"></div>
-
-        <audio id="audioPlayer" controls>
-            <source id="audioSource" src="" type="audio/mp3">
-            Seu navegador não suporta a tag de áudio.
-        </audio>
-
-        <!-- Adicione um botão de reprodução -->
-        <button id="playButton" onclick="playSong()">Play</button>
-
-        <div id="controls">
-            <img id="previousButton" class="controlIcon" src="/images/previous.png" alt="Anterior">
-            <img id="playPauseButton" class="controlIcon" src="/images/play.png" alt="Play/Pause">
-            <img id="nextButton" class="controlIcon" src="/images/forward.png" alt="Próxima">
+    <div class="logo">
+        <img src="imagens/logo1.jpg" alt="Logo">
+    </div>
+    <div class="capa-album">
+        <img src="imagens/cranberries2.jpg" alt="Capa do Álbum">
+    </div>
+    <div class="reprodutor">
+        <div class="descrição">
+            <i class="branco" id="songName"></i>
+            <i class="branco" id="songArtist"></i>
         </div>
+        <div class="controles">
+            <i class="fas fa-backward" id="backward"></i>
+            <i class="fas fa-play" id="play"></i>
+            <i class="fas fa-forward" id="forward"></i>
+        </div>
+        <div class="barra" id="progressBarContainer">
+            <progress value="0" max="1" id="progressBar"></progress>
+            <div class="ponto" id="progressDot"></div>
+        </div>
+        <div class="duracao branco">
+            <p class="inicio" id="startTime">00:00</p>
+            <p class="fim" id="endTime">04:49</p>
+        </div>
+    </div>
 
-        <div id="songInfo"></div>
+    <div>
+        <audio id="audio" src=""></audio>
     </div>
 
     <script>
-        var audioPlayer = document.getElementById('audioPlayer');
-        var playButton = document.getElementById('playButton');
-        var previousButton = document.getElementById('previousButton');
-        var playPauseButton = document.getElementById('playPauseButton');
-        var nextButton = document.getElementById('nextButton');
-        var songInfo = document.getElementById('songInfo');
-        var audioSource = document.getElementById('audioSource');
-        var albumCover = document.getElementById('albumCover');
-  
-  
-        function playSong() {
-    // Obtenha os parâmetros da URL usando JavaScript puro
-    var searchParams = new URLSearchParams(window.location.search);
-    var playlistName = searchParams.get('playlist');
-    var songName = searchParams.get('song');
+        document.addEventListener('DOMContentLoaded', () => {
+            const audio = document.getElementById('audio');
+            const playButton = document.getElementById('play');
+            const progressBarContainer = document.getElementById('progressBarContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressDot = document.getElementById('progressDot');
+            const startTime = document.getElementById('startTime');
+            const endTime = document.getElementById('endTime');
+            const songNameElement = document.getElementById('songName');
+            const songArtistElement = document.getElementById('songArtist');
 
-    var encodedPlaylistName = encodeURIComponent(playlistName);
-    var encodedSongName = encodeURIComponent(songName);
+            let isDragging = false;
+            let currentSongIndex = getSongIndexFromURL();
 
-    // Construa o caminho correto para o arquivo de áudio
-    var audioPath = '/music/' + encodedPlaylistName + '/' + encodedSongName + '.mp3';
-
-    audioSource.src = audioPath;
-    audioPlayer.load();
-
-    // Inicie a reprodução apenas quando o botão for clicado
-    audioPlayer.play()
-        .then(() => {
-            playButton.style.display = 'none';  // Oculte o botão de reprodução
-            songInfo.innerText = 'Tocando: ' + songName + ' - ' + playlistName;
-            // Adicione a lógica para carregar a capa do álbum, se disponível
-            albumCover.innerHTML = '<img src="/images/Capa_Samba_Esquema_Novo.jpg">';
-        })
-        .catch(error => {
-            console.error('Erro ao reproduzir a música:', error);
-        });
-}
-
-
-
-
-        function playPause() {
-            if (audioPlayer.paused) {
-                audioPlayer.play();
-                playPauseButton.src = '/images/pause.png';
-            } else {
-                audioPlayer.pause();
-                playPauseButton.src = '/images/play.png';
+            function updateSongDetails(song) {
+                songNameElement.innerText = song.nome;
+                songArtistElement.innerText = song.artista;
+                audio.src = song.arquivo;
+                audio.play();
             }
-        }
 
-        function previousTrack() {
-            audioPlayer.currentTime -= 5;
-        }
+            function togglePlay() {
+                if (audio.paused) {
+                    audio.play();
+                } else {
+                    audio.pause();
+                }
+            }
 
-        function nextTrack() {
-            audioPlayer.currentTime += 5;
-        }
+            playButton.addEventListener('click', togglePlay);
 
-        playPauseButton.addEventListener('click', playPause);
-        previousButton.addEventListener('click', previousTrack);
-        nextButton.addEventListener('click', nextTrack);
+            audio.addEventListener('timeupdate', () => {
+                const progress = audio.currentTime / audio.duration;
+                progressBar.value = progress;
+                if (!isDragging) {
+                    progressDot.style.left = `${progress * 100}%`;
+                }
+                startTime.innerText = formatTime(audio.currentTime);
+                endTime.innerText = formatTime(audio.duration);
+            });
+
+            progressBarContainer.addEventListener('click', (event) => {
+                const clickedTime = (event.offsetX / progressBarContainer.offsetWidth) * audio.duration;
+                audio.currentTime = clickedTime;
+            });
+
+            progressDot.addEventListener('mousedown', () => {
+                isDragging = true;
+
+                const mouseMoveHandler = (event) => {
+                    const dotPosition = event.clientX - progressBarContainer.getBoundingClientRect().left;
+                    const progress = dotPosition / progressBarContainer.offsetWidth;
+                    progressDot.style.left = `${progress * 100}%`;
+                };
+
+                const mouseUpHandler = () => {
+                    const dotPosition = parseFloat(progressDot.style.left);
+                    const progress = dotPosition / progressBarContainer.offsetWidth;
+                    audio.currentTime = progress * audio.duration;
+                    isDragging = false;
+
+                    document.removeEventListener('mousemove', mouseMoveHandler);
+                    document.removeEventListener('mouseup', mouseUpHandler);
+                };
+
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+            });
+
+            function formatTime(time) {
+                const minutes = Math.floor(time / 60);
+                const seconds = Math.floor(time % 60);
+                return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            // Mock playlist data
+            const playlist = [
+                { nome: 'Animal Instinct', artista: 'The Cranberries', arquivo: 'musicas/Animal Instintic.mp3' },
+                { nome: 'Dreams', artista: 'The Cranberries', arquivo: 'musicas/Dreams.mp3' },
+                { nome: 'Linger (Dave Bascombe Mix)', artista: 'The Cranberries', arquivo: 'musicas/Linger (Dave Bascombe Mix).mp3' },
+                { nome: 'Ode To My Family', artista: 'The Cranberries', arquivo: 'musicas/Ode To My Family.mp3' },
+                { nome: 'Sunday', artista: 'The Cranberries', arquivo: 'musicas/Sunday.mp3' },
+                { nome: 'Zombie', artista: 'The Cranberries', arquivo: 'musicas/Zombie.mp3' },
+            ];
+
+            currentSongIndex = Math.max(0, Math.min(currentSongIndex, playlist.length - 1));
+
+            updateSongDetails(playlist[currentSongIndex]);
+
+            function playNextSong() {
+                currentSongIndex = (currentSongIndex + 1) % playlist.length;
+                updateSongDetails(playlist[currentSongIndex]);
+            }
+
+            function playPreviousSong() {
+                currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+                updateSongDetails(playlist[currentSongIndex]);
+            }
+
+            document.getElementById('forward').addEventListener('click', playNextSong);
+            document.getElementById('backward').addEventListener('click', playPreviousSong);
+
+            function getSongIndexFromURL() {
+                const queryString = window.location.search;
+                const urlParams = new URLSearchParams(queryString);
+                const songIndex = urlParams.get('song');
+                return parseInt(songIndex) || 0;
+            }
+        });
     </script>
 </body>
+
 </html>
