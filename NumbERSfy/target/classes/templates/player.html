@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numbersfy Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0%;
+            padding: 0%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #0099ff;
+            color: rgba(0, 0, 255, 0.192);
+            height: 100vh;
+        }
+
+        .logo {
+            margin-bottom: 20px;
+        }
+
+        .capa-album img {
+            width: 300px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .reprodutor {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .descrição {
+            margin: 10px 0;
+        }
+
+        .branco {
+            color: #fff;
+        }
+
+        .controles {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .controles i {
+            cursor: pointer;
+            font-size: 24px;
+            color: #000;
+            margin: 5px;
+        }
+
+        .barra {
+            width: 300px;
+            height: 6px;
+            border: 1px solid rgb(0, 0, 0);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        progress {
+            height: 6px;
+            width: 0;
+            background-color: #333;
+        }
+
+        .ponto {
+            width: 20px;
+            height: 20px;
+            background-color: aliceblue;
+            border-radius: 50%;
+            margin-left: -10px;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .duracao {
+            width: 300px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logo">
+        <img th:src="@{/images/logo.png}" alt="Logo">
+    </div>
+    <div class="capa-album">
+        <img th:src="@{/images/cranberries2.jpg}" alt="Capa do Álbum">
+    </div>
+    <div class="reprodutor">
+        <div class="descrição">
+            <i class="branco" id="songName"></i>
+            <i class="branco" id="songArtist"></i>
+        </div>
+        <div class="controles">
+            <i class="fas fa-backward" id="backward"></i>
+            <i class="fas fa-play" id="play"></i>
+            <i class="fas fa-forward" id="forward"></i>
+        </div>
+        <div class="barra" id="progressBarContainer">
+            <progress value="0" max="1" id="progressBar"></progress>
+            <div class="ponto" id="progressDot"></div>
+        </div>
+        <div class="duracao branco">
+            <p class="inicio" id="startTime">00:00</p>
+            <p class="fim" id="endTime">04:49</p>
+        </div>
+    </div>
+
+    <div>
+        <audio id="audio" th:src=""></audio>
+    </div>
+
+    <script>
+
+        const playlist = [
+
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const audio = document.getElementById('audio');
+            const playButton = document.getElementById('play');
+            const progressBarContainer = document.getElementById('progressBarContainer');
+            const progressBar = document.getElementById('progressBar');
+            const progressDot = document.getElementById('progressDot');
+            const startTime = document.getElementById('startTime');
+            const endTime = document.getElementById('endTime');
+            const songNameElement = document.getElementById('songName');
+            const songArtistElement = document.getElementById('songArtist');
+
+            let isDragging = false;
+            let currentSongIndex = getSongIndexFromURL();
+
+            function updateSongDetails(song) {
+                songNameElement.innerText = song.nome;
+                songArtistElement.innerText = song.artista;
+                audio.src = song.arquivo;
+                audio.play();
+            }
+
+            function togglePlay() {
+                if (audio.paused) {
+                    audio.play();
+                } else {
+                    audio.pause();
+                }
+            }
+
+            playButton.addEventListener('click', togglePlay);
+
+            audio.addEventListener('timeupdate', () => {
+                const progress = audio.currentTime / audio.duration;
+                progressBar.value = progress;
+                if (!isDragging) {
+                    progressDot.style.left = `${progress * 100}%`;
+                }
+                startTime.innerText = formatTime(audio.currentTime);
+                endTime.innerText = formatTime(audio.duration);
+            });
+
+            progressBarContainer.addEventListener('click', (event) => {
+                const clickedTime = (event.offsetX / progressBarContainer.offsetWidth) * audio.duration;
+                audio.currentTime = clickedTime;
+            });
+
+            progressDot.addEventListener('mousedown', () => {
+                isDragging = true;
+
+                const mouseMoveHandler = (event) => {
+                    const dotPosition = event.clientX - progressBarContainer.getBoundingClientRect().left;
+                    const progress = dotPosition / progressBarContainer.offsetWidth;
+                    progressDot.style.left = `${progress * 100}%`;
+                };
+
+                const mouseUpHandler = () => {
+                    const dotPosition = parseFloat(progressDot.style.left);
+                    const progress = dotPosition / progressBarContainer.offsetWidth;
+                    audio.currentTime = progress * audio.duration;
+                    isDragging = false;
+
+                    document.removeEventListener('mousemove', mouseMoveHandler);
+                    document.removeEventListener('mouseup', mouseUpHandler);
+                };
+
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+            });
+
+            function formatTime(time) {
+                const minutes = Math.floor(time / 60);
+                const seconds = Math.floor(time % 60);
+                return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+
+            currentSongIndex = Math.max(0, Math.min(currentSongIndex, playlist.length - 1));
+
+            updateSongDetails(playlist[currentSongIndex]);
+
+            function playNextSong() {
+                currentSongIndex = (currentSongIndex + 1) % playlist.length;
+                updateSongDetails(playlist[currentSongIndex]);
+            }
+
+            function playPreviousSong() {
+                currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+                updateSongDetails(playlist[currentSongIndex]);
+            }
+
+            document.getElementById('forward').addEventListener('click', playNextSong);
+            document.getElementById('backward').addEventListener('click', playPreviousSong);
+
+            function getSongIndexFromURL() {
+                const queryString = window.location.search;
+                const urlParams = new URLSearchParams(queryString);
+                const songIndex = urlParams.get('song');
+                return parseInt(songIndex) || 0;
+            }
+        });
+    </script>
+</body>
+
+</html>
